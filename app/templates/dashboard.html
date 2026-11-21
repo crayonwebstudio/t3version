@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>t3version - Dashboard</title>
+<style>
+body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:#f4f4f2;color:#242424;margin:0}
+header{background:#242424;color:#fff;padding:14px 24px;display:flex;justify-content:space-between;align-items:center}
+header a{color:#fcd16e;text-decoration:none;font-size:14px}
+main{max-width:760px;margin:32px auto;padding:0 20px}
+h1{font-size:22px;margin:0 0 4px}
+p.sub{color:#666;font-size:14px;margin:0 0 20px}
+form{display:flex;gap:8px}
+input[type=url]{flex:1;padding:11px;border:1px solid #ccc;border-radius:6px;font-size:15px}
+button{padding:11px 20px;background:#242424;color:#fff;border:0;border-radius:6px;font-size:15px;cursor:pointer}
+button:hover{background:#000}
+.result{background:#fff;border:1px solid #e0e0e0;border-radius:10px;padding:22px;margin-top:24px}
+.result h2{margin:0 0 8px;font-size:18px}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:13px;font-weight:600}
+.badge.high{background:#e6f4ea;color:#137333}
+.badge.medium{background:#fef7e0;color:#b06000}
+.badge.low{background:#fce8e6;color:#a50e0e}
+.badge.none{background:#eee;color:#666}
+table{border-collapse:collapse;margin-top:12px}
+td{padding:5px 14px 5px 0;font-size:14px;vertical-align:top}
+td.k{color:#666;white-space:nowrap}
+ul{margin:10px 0 0;padding-left:20px;font-size:14px;line-height:1.6}
+.meta{margin-top:24px;font-size:13px;color:#666}
+code{background:#eee;padding:1px 5px;border-radius:4px;font-size:13px}
+</style>
+</head>
+<body>
+<header><span><strong>t3version</strong> &nbsp;TYPO3 version detector</span><span>{{ user }} &middot; <a href="/logout">Sign out</a></span></header>
+<main>
+<h1>Check a website</h1>
+<p class="sub">Hash database covers TYPO3 {% for v in versions %}v{{ v }}{% if not loop.last %}, {% endif %}{% endfor %}. Never guesses: no match means Not verified.</p>
+<form method="post" action="/check">
+<input type="url" name="url" placeholder="https://example.com" value="{{ checked_url }}" required>
+<button type="submit">Check version</button>
+</form>
+{% if result %}
+<div class="result">
+<h2>{{ result.url }}</h2>
+<table>
+<tr><td class="k">TYPO3</td><td>{% if result.is_typo3 %}Yes{% else %}No{% endif %}</td></tr>
+<tr><td class="k">Version</td><td><strong>{{ result.version }}</strong></td></tr>
+<tr><td class="k">Confidence</td><td><span class="badge {{ result.confidence }}">{{ result.confidence }}</span></td></tr>
+</table>
+<ul>
+{% for e in result.evidence %}<li>{{ e }}</li>{% endfor %}
+</ul>
+</div>
+{% endif %}
+<div class="meta">
+<p>API: <code>POST /api/v1/check</code> with JSON <code>{"url": "..."}</code> and header <code>X-API-Key</code>. Returns <code>{"url", "is_typo3", "version", "confidence", "evidence"}</code>.</p>
+</div>
+</main>
+</body>
+</html>
